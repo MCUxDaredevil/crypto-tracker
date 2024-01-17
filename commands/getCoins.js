@@ -7,7 +7,7 @@ module.exports = {
 
   // Invoked when a user runs the ping command
   callback: (
-    {client, instance, message, interaction, args, text}
+    {client}
   ) => {
     client.fetchApi(process.env.API_URL).then(async (res) => {
       const coins = res.data;

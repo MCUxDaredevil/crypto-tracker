@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "dev": "clear; nodemon wok.js"
+    "dev": "clear; nodemon index.js"
   },
   "keywords": [],
   "author": "",
