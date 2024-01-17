@@ -1,0 +1,16 @@
+{
+  "users": {
+    "id": "varchar",
+    "name": "varchar",
+    "bet": "double",
+    "bet_date": "date",
+    "coin": "varchar"
+  },
+  "coins": {
+    "id": "varchar",
+    "name": "varchar",
+    "symbol": "varchar",
+    "image": "varchar",
+    "tracking": "boolean"
+  }
+}

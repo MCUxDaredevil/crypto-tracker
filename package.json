@@ -1,0 +1,24 @@
+{
+  "name": "crypto-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/MCUxDaredevil/crypto-tracker"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "clear; nodemon wok.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.5",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "mysql": "^2.18.1",
+    "promise-mysql": "^5.2.0",
+    "wokcommands": "^2.1.9"
+  }
+}
