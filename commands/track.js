@@ -1,6 +1,6 @@
 const {CommandType} = require("wokcommands");
 const {parseRange} = require("../utils");
-const axios = require("axios");
+const {get} = require("axios");
 const {
   StringSelectMenuBuilder,
   ActionRowBuilder,
@@ -11,6 +11,7 @@ const {
 
 module.exports = {
   type: CommandType.SLASH,
+  ownerOnly: true,
   description: "Manage the coins you are tracking",
   deferReply: 'ephemeral',
   callback: async ({
@@ -18,7 +19,7 @@ module.exports = {
                      interaction,
                    }) => {
 
-    const coins = (await axios.get(process.env.API_URL)).data.map((coin) => {
+    const coins = (await get(process.env.API_URL)).data.map((coin) => {
       return {
         id: coin.id,
         name: coin.name,
@@ -82,12 +83,12 @@ module.exports = {
 
     const menuCollector = response.createMessageComponentCollector({
       componentType: ComponentType.StringSelect,
-      time: 3_600_000,
+      time: 600_000,
     })
 
     const buttonCollector = response.createMessageComponentCollector({
       componentType: ComponentType.Button,
-      time: 3_600_000,
+      time: 600_000,
     });
 
     buttonCollector.on('collect', async i => {
@@ -144,6 +145,7 @@ module.exports = {
         await client.db.executeQuery(deselectQuery);
       }
 
+      client.trackedCoins = await client.db.executeQuery("SELECT coin_id, name FROM coins WHERE tracking=1");
       const reply = `Added the following coins to tracking: ${selection.join(', ') || "None"}\nRemoved the following coins from tracking: ${deselected.join(', ') || "None"}`;
 
       await i.reply({

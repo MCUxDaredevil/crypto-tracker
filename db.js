@@ -19,7 +19,6 @@ module.exports = class SQLManager {
                     console.error('Error executing query:', error);
                     reject(error);
                 } else {
-                    console.log('Query executed successfully.');
                     resolve(results);
                 }
             });

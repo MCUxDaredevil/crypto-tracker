@@ -1,5 +1,6 @@
 const {CommandType} = require("wokcommands");
 const {EmbedBuilder} = require("discord.js");
+const {get} = require("axios");
 
 module.exports = {
   description: "Get all available coins",
@@ -9,7 +10,7 @@ module.exports = {
   callback: (
     {client}
   ) => {
-    client.fetchApi(process.env.API_URL).then(async (res) => {
+    get(process.env.API_URL).then(async (res) => {
       const coins = res.data;
 
       const embed = new EmbedBuilder()

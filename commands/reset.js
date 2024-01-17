@@ -1,5 +1,5 @@
 const {CommandType} = require("wokcommands");
-const axios = require("axios");
+const {get} = require("axios");
 const {ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 
 module.exports = {
@@ -35,7 +35,7 @@ module.exports = {
 
       if (confirmation.customId === 'confirm') {
         await client.db.executeQuery("DELETE FROM coins");
-        const response = await axios.get(process.env.API_URL);
+        const response = await get(process.env.API_URL);
         const coins = response.data.map((coin) => {
           return `(
             '${coin.id}',
@@ -51,6 +51,7 @@ module.exports = {
         VALUES ${coins.join(', ')}`;
 
         await client.db.executeQuery(query);
+        client.trackedCoins = [];
 
         await confirmation.update({
           content: `Done Resetting`,
