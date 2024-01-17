@@ -1,38 +1,21 @@
 const {CommandType} = require("wokcommands");
 const {parseRange} = require("../utils");
 const axios = require("axios");
-const {EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, ComponentType, ButtonStyle, ButtonBuilder} = require("discord.js");
+const {
+  StringSelectMenuBuilder,
+  ActionRowBuilder,
+  ComponentType,
+  ButtonStyle,
+  ButtonBuilder
+} = require("discord.js");
 
 module.exports = {
-  type: CommandType.BOTH,
-  init: (client, instance) => {
-  },
-  description: "Add your description here",
-  aliases: [],
-  testOnly: false,
-  guildOnly: false,
-  ownerOnly: false,
-  permissions: [],
+  type: CommandType.SLASH,
+  description: "Manage the coins you are tracking",
   deferReply: 'ephemeral',
-  minArgs: 0,
-  maxArgs: -1,
-  correctSyntax: "Correct syntax: {PREFIX}{COMMAND} {ARGS}",
-  expectedArgs: "<num1> <num2>",
-  options: [],
-  reply: true,
   callback: async ({
                      client,
-                     instance,
-                     message,
                      interaction,
-                     args,
-                     text,
-                     guild,
-                     member,
-                     user,
-                     channel,
-                     cancelCooldown,
-                     updateCooldown,
                    }) => {
 
     const coins = (await axios.get(process.env.API_URL)).data.map((coin) => {
@@ -52,7 +35,7 @@ module.exports = {
 
     let currentPage = 1;
     const maxPage = Math.ceil(coins.length / 25);
-    const currentCoins = coins.slice((currentPage - 1) * 25, currentPage * 25);
+    let currentCoins = coins.slice((currentPage - 1) * 25, currentPage * 25);
 
     const coinMenu = new StringSelectMenuBuilder({
       custom_id: 'coin_menu',
@@ -126,7 +109,7 @@ module.exports = {
         currentPage++;
       }
 
-      const currentCoins = coins.slice((currentPage - 1) * 25, currentPage * 25);
+      currentCoins = coins.slice((currentPage - 1) * 25, currentPage * 25);
       coinMenu.setOptions(currentCoins.map((coin) => {
         return {
           label: coin.name,
@@ -144,46 +127,28 @@ module.exports = {
     });
 
     menuCollector.on('collect', async i => {
-      const selection = i.values;
-      const deselected = trackedCoins.filter((coin_id) => currentCoins.has(coin_id) && !selection.has(coin_id));
-      const selectQuery = `UPDATE coins SET tracking=1 WHERE coin_id IN (${selection.map((id) => `'${id}'`).join(', ')})`;
-      const deselectQuery = `UPDATE coins SET tracking=0 WHERE coin_id IN (${deselected.map((id) => `'${id}'`).join(', ')})`;
-      await client.db.executeQuery(selectQuery);
-      await client.db.executeQuery(deselectQuery);
+      const response = i.values;
+      const deselected = currentCoins.filter((coin) =>
+        trackedCoins.some((c) => c.id === coin.id) && !response.includes(coin.id)
+      ).map((coin) => coin.id);
+
+      const selection = response.filter((value) => !trackedCoins.some((coin) => coin.id === value));
+
+      if (selection.length > 0) {
+        const selectQuery = `UPDATE coins SET tracking=1 WHERE coin_id IN (${selection.map((id) => `'${id}'`).join(', ')})`;
+        await client.db.executeQuery(selectQuery);
+      }
+
+      if (deselected.length > 0) {
+        const deselectQuery = `UPDATE coins SET tracking=0 WHERE coin_id IN (${deselected.map((id) => `'${id}'`).join(', ')})`;
+        await client.db.executeQuery(deselectQuery);
+      }
+
+      const reply = `Added the following coins to tracking: ${selection.join(', ') || "None"}\nRemoved the following coins from tracking: ${deselected.join(', ') || "None"}`;
+
       await i.reply({
-        content: "Added the following coins to tracking: " + selection.join(', ')
+        content: reply
       })
     });
-
-
-    if (message) {
-      const ranges = message.content.slice(6);
-      if (!ranges) {
-        return await message.reply("Please provide a range of coin IDs to track.");
-      }
-
-      const ranks = parseRange(ranges);
-      if (ranks.length === 0) {
-        return await message.reply("Please provide a valid range of coin IDs to track.");
-      }
-
-      axios.get(process.env.API_URL).then(async (res) => {
-        const coins = res.data;
-
-        let selectedCoins = [];
-        ranks.forEach((rank) => {
-          const coin = coins[rank - 1];
-          selectedCoins.push(`${coin.market_cap_rank}. ${coin.name}(${coin.id})`);
-        });
-
-        const embed = new EmbedBuilder()
-          .setColor('#0099ff')
-          .setTitle('Selected Coins')
-          .setDescription(selectedCoins.join('\n'));
-
-        await message.reply({embeds: [embed]});
-      });
-    }
-
   },
 }

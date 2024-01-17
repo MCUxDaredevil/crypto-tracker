@@ -11,7 +11,7 @@ module.exports = {
     }) => {
       const coins = await client.db.executeQuery("SELECT coin_id, name FROM coins WHERE tracking=1");
       return {
-        content: coins.map((coin) => coin.name).toString(),
+        content: coins.map((row) => `${row.name} (${row.coin_id})`).join("\n"),
       }
     },
 }
