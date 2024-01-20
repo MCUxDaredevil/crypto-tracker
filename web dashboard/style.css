@@ -1,0 +1,70 @@
+:root {
+    --primary-background: #00030c;
+    --primary-color: #282828;
+    --secondary-color: aqua;
+    --untracked-box: 0 0 5px 1px darkgray;
+    --tracked-box: 0 0 10px 5px aqua;
+}
+
+
+.navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+
+    .logo {
+        height: 100px;
+        width: 100px;
+        border-radius: 10px;
+    }
+
+    .title {
+        color: aqua;
+        font-size: 60px;
+        font-family: 'Montserrat', sans-serif;
+        margin-left: 20px;
+    }
+}
+
+body {
+    background-color: var(--primary-background);
+}
+
+.coin-list {
+    display: flex;
+    /*grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));*/
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    .coin-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin: 20px;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: var(--primary-color);
+        box-shadow: var(--untracked-box);
+    }
+
+    .coin-img {
+        height: 100px;
+        width: 100px;
+        border-radius: 50%;
+        margin: 10px;
+    }
+
+    .coin-name {
+        color: aqua;
+        font-size: 30px;
+        font-family: 'Montserrat', sans-serif;
+        /*word-break: break-all;*/
+        font-variant-caps: all-small-caps;
+
+    }
+}
