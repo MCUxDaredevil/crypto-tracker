@@ -32,11 +32,10 @@ body {
 }
 
 .coin-list {
-    display: flex;
-    /*grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));*/
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
     margin-top: 20px;
     margin-bottom: 20px;
 
@@ -61,10 +60,9 @@ body {
 
     .coin-name {
         color: aqua;
-        font-size: 30px;
+        font-size: 25px;
         font-family: 'Montserrat', sans-serif;
-        /*word-break: break-all;*/
-        font-variant-caps: all-small-caps;
+        font-variant-caps: small-caps;
 
     }
 }

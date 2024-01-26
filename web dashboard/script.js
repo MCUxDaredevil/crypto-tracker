@@ -1,42 +1,33 @@
-const SQLManager = require("../db");
-require("dotenv").config();
-
 document.addEventListener("DOMContentLoaded", function () {
 
-  const db = new SQLManager({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
+  fetch("http://localhost:3001/coins")
+    .then((response) => response.json())
+    .then((cryptoData) => {
+      console.log(cryptoData)
+      const cryptoContainer = document.getElementById("coin-list");
+      cryptoData.forEach((crypto) => {
+        const box = document.createElement("div");
+        box.classList.add("coin-container");
+        box.id = crypto.coin_id;
 
-  const cryptoData = db.executeQuery("SELECT coin_id, name, logo FROM coins WHERE tracking=1")
+        const logo = document.createElement("img");
+        logo.classList.add("coin-img");
+        logo.src = crypto.image;
+        logo.alt = `${crypto.name} Logo`;
 
-  const cryptoContainer = document.getElementById("coin-list");
-
-  cryptoData.forEach((crypto) => {
-    const box = document.createElement("div");
-    box.classList.add("coin-container");
-    box.id = crypto.coin_id;
-
-    const logo = document.createElement("img");
-    logo.classList.add("coin-img");
-    logo.src = crypto.logo;
-    logo.alt = `${crypto.name} Logo`;
-
-    const name = document.createElement("div");
-    name.classList.add("coin-name");
-    name.textContent = crypto.name;
+        const name = document.createElement("div");
+        name.classList.add("coin-name");
+        name.textContent = crypto.name;
 
 
-    box.appendChild(logo);
-    box.appendChild(name);
-    cryptoContainer.appendChild(box);
-  });
+        box.appendChild(logo);
+        box.appendChild(name);
+        cryptoContainer.appendChild(box);
+      });
 
-  // adjustFontSize();
-  window.addEventListener("resize", adjustFontSize);
+      adjustFontSize();
+      window.addEventListener("resize", adjustFontSize);
+    });
 });
 
 function adjustFontSize() {
@@ -44,7 +35,7 @@ function adjustFontSize() {
   cryptoBoxes.forEach((box) => {
     const name = box.querySelector(".coin-name");
     const containerWidth = box.clientWidth;
-    const fontSize = containerWidth / 12; // Adjust this multiplier as needed
+    const fontSize = containerWidth / 10; // Adjust this multiplier as needed
     name.style.fontSize = `${fontSize}px`;
   });
 }

@@ -2,10 +2,15 @@ const express = require('express');
 const mysql = require('mysql');
 const {get} = require('axios');
 const bodyParser = require('body-parser');
+const cors = require("cors");
 require('dotenv').config();
 
 const app = express();
 const port = 3001;
+
+app.use(cors({
+  origin: 'http://localhost:63342'
+}));
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -57,7 +62,7 @@ app.get('/coins/:id', (req, res) => {
 });
 
 app.get('/tracked', (req, res) => {
-  const query = 'SELECT coin_id, name FROM coins WHERE tracking=1';
+  const query = 'SELECT coin_id, name, image FROM coins WHERE tracking=1';
   db.query(query, (error, results) => {
     if (error) {
       console.error('Error fetching data from MySQL:', error);
@@ -163,7 +168,6 @@ app.post('/rebuild', async (req, res) => {
       res.status(500).json({error: 'Internal Server Error'});
     }
   });
-
 
 
   const response = await get(process.env.MARKET_API);
