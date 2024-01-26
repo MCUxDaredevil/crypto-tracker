@@ -62,7 +62,7 @@ app.get('/coins/:id', (req, res) => {
 });
 
 app.get('/tracked', (req, res) => {
-  const query = 'SELECT coin_id, name, image FROM coins WHERE tracking=1';
+  const query = 'SELECT coin_id, name FROM coins WHERE tracking=1';
   db.query(query, (error, results) => {
     if (error) {
       console.error('Error fetching data from MySQL:', error);
@@ -109,6 +109,19 @@ app.post('/query', (req, res) => {
 
     res.json(results);
   });
+});
+
+app.post('/multiquery', (req, res) => {
+  const {query, params} = req.body;
+
+  for(const param of params) {
+    db.query(query, param, (error, results) => {
+      if (error) {
+        console.error('Error fetching data from MySQL:', error);
+        return res.status(500).json({error: 'Internal Server Error'});
+      }
+    });
+  }
 });
 
 
