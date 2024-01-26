@@ -9,7 +9,7 @@ module.exports = (instance, client) => {
     });
 
     const embed = new EmbedBuilder()
-        .setTitle('Leaderboard')
+        .setTitle('Bet Results')
         .setColor('#0099ff')
         .setTimestamp()
 
