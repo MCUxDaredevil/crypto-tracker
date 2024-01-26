@@ -36,21 +36,22 @@ client.on("ready", async () => {
       return client.trackedCoins.find((row) => row.coin_id === coin.id);
     });
 
-    const embed = new EmbedBuilder()
-      .setTitle('Tracked Coins')
-      .setColor('#0099ff')
-      .addFields(
-        coinData.map((coin) => {
-          return {
-            name: coin.name,
-            value: `$${coin.current_price}`,
-            inline: true,
-          }
-        })
-      );
+    const coins = coinData.map((coin) => {
+      return {
+        name: coin.name,
+        value: `$${coin.current_price}`,
+        inline: true,
+      }
+    })
 
-    await client.trackingChannel.send({embeds: [embed]});
+    if (coins.length !== 0) {
+      const embed = new EmbedBuilder()
+        .setTitle('Tracked Coins')
+        .setColor('#0099ff')
+        .addFields(coins);
 
+      await client.trackingChannel.send({embeds: [embed]});
+    }
   });
 
 });

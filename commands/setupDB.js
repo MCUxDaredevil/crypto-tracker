@@ -1,10 +1,10 @@
 const {CommandType} = require("wokcommands");
-const {get, post} = require("axios");
+const {post} = require("axios");
 const {ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 
 module.exports = {
-  description: "Reset the Database",
-  deferReply: "ephemeral",
+  description: "Setup new database",
+  deferReply: true,
   ownerOnly: true,
   testOnly: true,
   guildOnly: true,
@@ -34,37 +34,14 @@ module.exports = {
       const confirmation = await response.awaitMessageComponent({filter: collectorFilter, time: 10_000});
 
       if (confirmation.customId === 'confirm') {
-        await post(process.env.DB_API + '/query', {
-          query: "DELETE FROM coins",
-          params: [],
-        });
-        const response = await get(process.env.CRYPTO_API);
-        const coins = response.data.map((coin) => {
-          return `(
-            '${coin.id}',
-            '${coin.name}',
-            '${coin.symbol}',
-            '${coin.image}',
-            0
-        )`;
-        });
-        const query = `INSERT INTO coins (
-            coin_id, name, symbol, image, tracking
-        )
-        VALUES ${coins.join(', ')}`;
-
-        await post(process.env.DB_API + '/query', {
-          query,
-          params: [],
-        });
-        client.trackedCoins = [];
+        await post(process.env.DB_API + '/rebuild');
 
         await confirmation.update({
-          content: `Done Resetting`,
+          content: `Done Building DB`,
           components: []
         });
       } else if (confirmation.customId === 'cancel') {
-        await confirmation.update({content: 'Reset cancelled', components: []});
+        await confirmation.update({content: 'Rebuild cancelled', components: []});
       }
     } catch (e) {
       await interaction.editReply({content: 'Confirmation not received within 1 minute, cancelling', components: []});
