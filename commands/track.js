@@ -1,6 +1,5 @@
 const {CommandType} = require("wokcommands");
-const {parseRange} = require("../utils");
-const {get} = require("axios");
+const {get, post} = require("axios");
 const {
   StringSelectMenuBuilder,
   ActionRowBuilder,
@@ -19,14 +18,14 @@ module.exports = {
                      interaction,
                    }) => {
 
-    const coins = (await get(process.env.API_URL)).data.map((coin) => {
+    const coins = (await get(process.env.CRYPTO_API)).data.map((coin) => {
       return {
         id: coin.id,
         name: coin.name,
       };
     });
 
-    const rows = await client.db.executeQuery("SELECT coin_id, name FROM coins WHERE tracking=1")
+    const rows = await get(process.env.DB_API + '/tracked').then((response) => response.data);
     const trackedCoins = rows.map((coin) => {
       return {
         id: coin.coin_id,
@@ -137,15 +136,21 @@ module.exports = {
 
       if (selection.length > 0) {
         const selectQuery = `UPDATE coins SET tracking=1 WHERE coin_id IN (${selection.map((id) => `'${id}'`).join(', ')})`;
-        await client.db.executeQuery(selectQuery);
+        await post(process.env.DB_API + '/query', {
+          query: selectQuery,
+          params: [],
+        });
       }
 
       if (deselected.length > 0) {
         const deselectQuery = `UPDATE coins SET tracking=0 WHERE coin_id IN (${deselected.map((id) => `'${id}'`).join(', ')})`;
-        await client.db.executeQuery(deselectQuery);
+        await post(process.env.DB_API + '/query', {
+          query: deselectQuery,
+          params: [],
+        });
       }
 
-      client.trackedCoins = await client.db.executeQuery("SELECT coin_id, name FROM coins WHERE tracking=1");
+      client.trackedCoins = await get(process.env.DB_API + '/tracked').then((response) => response.data);
       const reply = `Added the following coins to tracking: ${selection.join(', ') || "None"}\nRemoved the following coins from tracking: ${deselected.join(', ') || "None"}`;
 
       await i.reply({

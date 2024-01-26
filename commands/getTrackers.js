@@ -1,15 +1,13 @@
 const { CommandType } = require("wokcommands");
+const {post, get} = require("axios");
 
 module.exports = {
-    type: CommandType.BOTH,
+    type: CommandType.SLASH,
     description: "Get a list of all the coins you are tracking",
-    maxArgs: 0,
-    correctSyntax: "Correct syntax: {PREFIX}{COMMAND}",
-    reply: true,
     callback: async ({
         client
     }) => {
-      const coins = await client.db.executeQuery("SELECT coin_id, name FROM coins WHERE tracking=1");
+      const coins = await get(process.env.DB_API + '/tracked').then((response) => response.data);
       return {
         content: coins.map((row) => `${row.name} (${row.coin_id})`).join("\n"),
       }

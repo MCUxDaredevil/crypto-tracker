@@ -1,5 +1,5 @@
 const {CommandType} = require("wokcommands");
-const {get} = require("axios");
+const {get, post} = require("axios");
 const {ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 
 module.exports = {
@@ -34,8 +34,11 @@ module.exports = {
       const confirmation = await response.awaitMessageComponent({filter: collectorFilter, time: 10_000});
 
       if (confirmation.customId === 'confirm') {
-        await client.db.executeQuery("DELETE FROM coins");
-        const response = await get(process.env.API_URL);
+        await post(process.env.DB_API + '/query', {
+          query: "DELETE FROM coins",
+          params: [],
+        });
+        const response = await get(process.env.CRYPTO_API);
         const coins = response.data.map((coin) => {
           return `(
             '${coin.id}',
@@ -50,7 +53,10 @@ module.exports = {
         )
         VALUES ${coins.join(', ')}`;
 
-        await client.db.executeQuery(query);
+        await post(process.env.DB_API + '/query', {
+          query,
+          params: [],
+        });
         client.trackedCoins = [];
 
         await confirmation.update({

@@ -18,16 +18,8 @@ const client = new Client({
 });
 
 client.on("ready", async () => {
-  client.db = new SQLManager({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
-
   client.trackingChannel = await client.channels.fetch("1195128453092081785");
-  client.trackedCoins = await client.db.executeQuery("SELECT coin_id, name FROM coins WHERE tracking=1");
+  client.trackedCoins = await get(process.env.DB_API + '/tracked').then((response) => response.data);
 
   new WOK({
     client,
@@ -39,7 +31,7 @@ client.on("ready", async () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
   schedule.scheduleJob('*/10 * * * *', async () => {
-    const response = await get(process.env.API_URL);
+    const response = await get(process.env.CRYPTO_API);
     const coinData = response.data.filter((coin) => {
       return client.trackedCoins.find((row) => row.coin_id === coin.id);
     });

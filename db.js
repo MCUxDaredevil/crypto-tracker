@@ -34,4 +34,18 @@ module.exports = class SQLManager {
             }
         });
     }
+
+
+    async resetDatabase() {
+        const query = `
+            DROP TABLE IF EXISTS coins;
+            CREATE TABLE coins (
+                coin_id VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                tracking BOOLEAN NOT NULL DEFAULT FALSE,
+                PRIMARY KEY (coin_id)
+            );
+        `;
+        return this.executeQuery(query);
+    }
 }
