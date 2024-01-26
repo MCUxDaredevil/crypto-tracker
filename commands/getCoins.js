@@ -8,7 +8,7 @@ module.exports = {
 
   // Invoked when a user runs the ping command
   callback: async () => {
-    const res = await get(process.env.CRYPTO_API)
+    const res = await get(process.env.MARKET_API)
     const coins = res.data;
 
     const embed = new EmbedBuilder()

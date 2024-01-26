@@ -70,6 +70,28 @@ app.get('/tracked', (req, res) => {
 });
 
 
+app.post('/bet', (req, res) => {
+  const {user_id, coin_id, amount, future} = req.body;
+
+  const query = `
+      INSERT INTO bets (
+          user_id, coin_id, amount, future
+      )
+      VALUES (?, ?, ?, ?)
+  `;
+
+  db.query(query, [user_id, coin_id, amount, future], (error, results) => {
+    if (error) {
+      console.error('Error fetching data from MySQL:', error);
+      res.status(500).json({error: 'Internal Server Error'});
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+
 app.post('/query', (req, res) => {
   const {query, params} = req.body;
 
@@ -99,19 +121,36 @@ app.post('/rebuild', async (req, res) => {
       );
   `;
 
+  const usersTableQuery = `
+      CREATE TABLE users (
+          user_id VARCHAR(255) NOT NULL,
+          bets_id TEXT,
+          points INT NOT NULL DEFAULT 0,
+          PRIMARY KEY (user_id)
+      );
+  `;
+
   const betsTableQuery = `
       CREATE TABLE bets (
           bet_id INT AUTO_INCREMENT,
-          user_id INT NOT NULL,
+          user_id VARCHAR(255) NOT NULL,
           coin_id VARCHAR(255) NOT NULL,
           amount DECIMAL(10, 2) NOT NULL,
           future BOOLEAN NOT NULL DEFAULT FALSE,
           PRIMARY KEY (bet_id),
-          FOREIGN KEY (coin_id) REFERENCES coins(coin_id)
+          FOREIGN KEY (coin_id) REFERENCES coins(coin_id),
+          FOREIGN KEY (user_id) REFERENCES users(user_id)
       );
   `;
 
   db.query(coinsTableQuery, (error, results) => {
+    if (error) {
+      console.error('Error fetching data from MySQL:', error);
+      res.status(500).json({error: 'Internal Server Error'});
+    }
+  });
+
+  db.query(usersTableQuery, (error, results) => {
     if (error) {
       console.error('Error fetching data from MySQL:', error);
       res.status(500).json({error: 'Internal Server Error'});
@@ -125,7 +164,9 @@ app.post('/rebuild', async (req, res) => {
     }
   });
 
-  const response = await get(process.env.CRYPTO_API);
+
+
+  const response = await get(process.env.MARKET_API);
   const coins = response.data.map((coin) => {
     return `(
       '${coin.id}',

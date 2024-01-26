@@ -18,7 +18,7 @@ module.exports = {
                      interaction,
                    }) => {
 
-    const coins = (await get(process.env.CRYPTO_API)).data.map((coin) => {
+    const coins = (await get(process.env.MARKET_API)).data.map((coin) => {
       return {
         id: coin.id,
         name: coin.name,

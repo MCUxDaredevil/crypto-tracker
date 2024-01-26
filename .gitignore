@@ -89,3 +89,5 @@ typings/
 
 .idea/
 db.js
+
+commands/test.js

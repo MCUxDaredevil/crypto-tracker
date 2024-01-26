@@ -1,6 +1,6 @@
 const {CommandType} = require("wokcommands");
-const {ApplicationCommandOptionType, ComponentType, StringSelectMenuBuilder, ActionRowBuilder} = require("discord.js");
-const {get} = require("axios");
+const {ComponentType, StringSelectMenuBuilder, ActionRowBuilder} = require("discord.js");
+const {placeBet} = require("../utils");
 
 module.exports = {
   type: CommandType.SLASH,
@@ -57,10 +57,19 @@ module.exports = {
       priceCollector.on('collect', async m => {
         const price = parseFloat(m.content);
 
+        const response = await placeBet(user.id, coinId, price);
+
+        if(response?.error) {
+          return interaction.editReply({
+            content: response.error,
+          });
+        }
+
         await menuInteraction.editReply({
-          content: `${user.username} bet ${price} on ${coin.name}`,
+          content: `<@${user.id}> bet ${price} on ${coin.name}`,
           components: [],
         });
+
       });
 
       priceCollector.on('end', async (collected) => {

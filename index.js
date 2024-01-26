@@ -18,42 +18,18 @@ const client = new Client({
 });
 
 client.on("ready", async () => {
-  client.trackingChannel = await client.channels.fetch("1195128453092081785");
+  client.trackingChannel = await client.channels.fetch(process.env.UPDATES_CHANNEL);
   client.trackedCoins = await get(process.env.DB_API + '/tracked').then((response) => response.data);
 
   new WOK({
     client,
     commandsDir: path.join(__dirname, "commands"),
+    featuresDir: path.join(__dirname, "features"),
     testServers: ["759539934557110272"],
     botOwners: ["561431845644926976"],
   });
 
   console.log(`Logged in as ${client.user.tag}!`);
-
-  schedule.scheduleJob('*/10 * * * *', async () => {
-    const response = await get(process.env.CRYPTO_API);
-    const coinData = response.data.filter((coin) => {
-      return client.trackedCoins.find((row) => row.coin_id === coin.id);
-    });
-
-    const coins = coinData.map((coin) => {
-      return {
-        name: coin.name,
-        value: `$${coin.current_price}`,
-        inline: true,
-      }
-    })
-
-    if (coins.length !== 0) {
-      const embed = new EmbedBuilder()
-        .setTitle('Tracked Coins')
-        .setColor('#0099ff')
-        .addFields(coins);
-
-      await client.trackingChannel.send({embeds: [embed]});
-    }
-  });
-
 });
 
 client.login(process.env.BOT_TOKEN);

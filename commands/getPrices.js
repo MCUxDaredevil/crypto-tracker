@@ -8,7 +8,7 @@ module.exports = {
   deferReply: true,
   callback: async ({ client }) => {
     const coins = await get(process.env.DB_API + '/tracked').then((response) => response.data);
-    const response = await get(process.env.CRYPTO_API);
+    const response = await get(process.env.MARKET_API);
     const coinData = response.data.filter((coin) => {
       return coins.find((row) => row.coin_id === coin.id);
     });
